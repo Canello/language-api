@@ -1,5 +1,6 @@
 const { runPythonScript } = require("./run-python-script");
 
+// Remember to fix this file paths
 const speechToText = async () => {
     const pythonScriptPath =
         "C:/Users/gughi/documents/projects/language-js/language-api/python/speech-to-text.py";
