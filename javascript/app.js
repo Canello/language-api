@@ -24,20 +24,31 @@ app.use(express.json());
 
 const messages = [{ role: "system", content: SYSTEM_PROMPT }];
 
-app.post("/", upload.single("audio"), async (req, res) => {
+app.post("/transcription", upload.single("audio"), async (req, res) => {
     try {
         const transcription = await speechToText();
-        messages.push({ role: "user", content: transcription });
         console.log("YOU:", transcription);
+
+        res.send({
+            data: { transcription },
+        });
+    } catch (err) {
+        console.log(err);
+    }
+});
+
+app.post("/chat", async (req, res) => {
+    try {
+        const { query } = req.body;
+        messages.push({ role: "user", content: query });
 
         const gptResponse = await talkToGPT(messages);
         messages.push({ role: "assistant", content: gptResponse });
         console.log("GPT:", gptResponse);
 
-        // Send gptResponse to front-end, so it can use text-to-speech to talk to user
-        res.send({ response: gptResponse });
-        // 1 - Send, also, the messages array so the front-end can send it back in each request
-        // 2 - Alternatively, store it in MongoDB or some DB optimized for frequent acess
+        res.send({
+            data: { reply: gptResponse },
+        });
     } catch (err) {
         console.log(err);
     }
