@@ -22,12 +22,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const messages = [{ role: "system", content: SYSTEM_PROMPT }];
-
 app.post("/transcription", upload.single("audio"), async (req, res) => {
     try {
         const transcription = await speechToText();
-        console.log("YOU:", transcription);
 
         res.send({
             data: { transcription },
@@ -39,12 +36,10 @@ app.post("/transcription", upload.single("audio"), async (req, res) => {
 
 app.post("/chat", async (req, res) => {
     try {
-        const { query } = req.body;
-        messages.push({ role: "user", content: query });
+        const { messages } = req.body;
 
+        messages.unshift({ role: "system", content: SYSTEM_PROMPT });
         const gptResponse = await talkToGPT(messages);
-        messages.push({ role: "assistant", content: gptResponse });
-        console.log("GPT:", gptResponse);
 
         res.send({
             data: { reply: gptResponse },
