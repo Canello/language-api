@@ -27,15 +27,13 @@ app.use(express.json());
 
 app.get("/test", (req, res) => res.send("Hey, this is ok!"));
 
+// app.js should be initialized from within the javascript folder.
+// If not, the file paths will be wrong.
+
 app.post("/transcription", upload.single("audio"), async (req, res) => {
     try {
         const { filename } = req.file;
         const transcription = await speechToText(filename);
-        console.log(
-            "audio file exists?",
-            "./uploads/" + filename,
-            fs.existsSync("./uploads/" + filename)
-        );
         fs.unlink(path.join(__dirname, "uploads", filename), (err) => {
             if (err) console.log(err);
         });
