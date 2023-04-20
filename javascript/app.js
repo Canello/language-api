@@ -31,9 +31,14 @@ app.post("/transcription", upload.single("audio"), async (req, res) => {
     try {
         const { filename } = req.file;
         const transcription = await speechToText(filename);
-        // fs.unlink(path.join(__dirname, "uploads", filename), (err) => {
-        //     if (err) console.log(err);
-        // });
+        console.log(
+            "audio file exists?",
+            "./uploads/" + filename,
+            fs.existsSync("./uploads/" + filename)
+        );
+        fs.unlink(path.join(__dirname, "uploads", filename), (err) => {
+            if (err) console.log(err);
+        });
 
         res.send({
             data: { transcription },
