@@ -22,6 +22,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get("/test", (req, res) => res.send("Hey, this is ok!"));
+
 app.post("/transcription", upload.single("audio"), async (req, res) => {
     try {
         const transcription = await speechToText();
