@@ -10,16 +10,7 @@ const speechToText = async (filename) => {
         "speech-to-text.py"
     );
     const args = [filename];
-    const envActivatePath = path.resolve(
-        __dirname,
-        "..",
-        "..",
-        "python",
-        "language-api",
-        process.env.ENV_ACTIVATION_FOLDER,
-        "activate"
-    );
-    return await runPythonScript(pythonScriptPath, args, envActivatePath);
+    return await runPythonScript(pythonScriptPath, args);
 };
 
 module.exports = { speechToText };
