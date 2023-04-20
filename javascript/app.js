@@ -3,6 +3,7 @@ const multer = require("multer");
 const cors = require("cors");
 const uuid = require("uuid");
 const fs = require("fs");
+const path = require("path");
 require("dotenv").config();
 const { speechToText } = require("./utils/speech-to-text");
 const { talkToGPT } = require("./utils/talk-to-gpt");
@@ -30,7 +31,7 @@ app.post("/transcription", upload.single("audio"), async (req, res) => {
     try {
         const { filename } = req.file;
         const transcription = await speechToText(filename);
-        fs.unlink("./uploads/" + filename, (err) => {
+        fs.unlink(path.join(__dirname, "uploads", filename), (err) => {
             if (err) console.log(err);
         });
 
