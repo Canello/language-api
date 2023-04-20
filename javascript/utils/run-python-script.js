@@ -1,5 +1,6 @@
 const { spawn } = require("child_process");
 
+// Main
 const runPythonScript = (pythonScriptPath, args, envActivatePath) => {
     return new Promise((resolve, reject) => {
         const childProcess = startChildProcess(
@@ -11,13 +12,26 @@ const runPythonScript = (pythonScriptPath, args, envActivatePath) => {
     });
 };
 
+// Functions
 function startChildProcess(pythonScriptPath, envActivatePath) {
-    const activationCommand = envActivatePath ? envActivatePath + " && " : "";
-
-    const childProcess = spawn("cmd.exe", [
-        "/c",
-        `${activationCommand}python ${pythonScriptPath}`,
-    ]);
+    let childProcess;
+    if (process.env.OS_TYPE === "windows") {
+        const activationCommand = envActivatePath
+            ? envActivatePath + " && "
+            : "";
+        childProcess = spawn("cmd.exe", [
+            "/c",
+            `${activationCommand}python ${pythonScriptPath}`,
+        ]);
+    } else if (process.env.OS_TYPE === "linux") {
+        const activationCommand = envActivatePath
+            ? "source " + envActivatePath + " && "
+            : "";
+        childProcess = spawn("bash", [
+            "-c",
+            `${activationCommand}python ${pythonScriptPath}`,
+        ]);
+    }
 
     return childProcess;
 }
