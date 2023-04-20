@@ -1,7 +1,7 @@
 const path = require("path");
 const { runPythonScript } = require("./run-python-script");
 
-const speechToText = async () => {
+const speechToText = async (filename) => {
     const pythonScriptPath = path.resolve(
         __dirname,
         "..",
@@ -9,7 +9,7 @@ const speechToText = async () => {
         "python",
         "speech-to-text.py"
     );
-    const args = [];
+    const args = [filename];
     const envActivatePath = path.resolve(
         __dirname,
         "..",

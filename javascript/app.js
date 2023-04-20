@@ -1,6 +1,8 @@
 const express = require("express");
 const multer = require("multer");
 const cors = require("cors");
+const uuid = require("uuid");
+const fs = require("fs");
 require("dotenv").config();
 const { speechToText } = require("./utils/speech-to-text");
 const { talkToGPT } = require("./utils/talk-to-gpt");
@@ -11,7 +13,7 @@ const storage = multer.diskStorage({
         cb(null, "uploads/");
     },
     filename: function (req, file, cb) {
-        cb(null, file.originalname);
+        cb(null, "audio" + uuid.v4() + ".wav");
     },
 });
 
@@ -26,7 +28,11 @@ app.get("/test", (req, res) => res.send("Hey, this is ok!"));
 
 app.post("/transcription", upload.single("audio"), async (req, res) => {
     try {
-        const transcription = await speechToText();
+        const { filename } = req.file;
+        const transcription = await speechToText(filename);
+        fs.unlink("./uploads/" + filename, (err) => {
+            if (err) console.log(err);
+        });
 
         res.send({
             data: { transcription },
