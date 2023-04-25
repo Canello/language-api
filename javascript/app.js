@@ -1,65 +1,28 @@
 const express = require("express");
-const multer = require("multer");
 const cors = require("cors");
-const uuid = require("uuid");
-const fs = require("fs");
-const path = require("path");
 require("dotenv").config();
-const { speechToText } = require("./utils/speech-to-text");
-const { talkToGPT } = require("./utils/talk-to-gpt");
-const { SYSTEM_PROMPT } = require("./utils/constants");
+require("express-async-errors");
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, "uploads/");
-    },
-    filename: function (req, file, cb) {
-        cb(null, "audio" + uuid.v4() + ".wav");
-    },
-});
+const { uploadAudio } = require("./middlewares/upload-audio");
+const { transcriptAudio } = require("./controllers/transcription");
+const { chat } = require("./controllers/chat");
+const { errorHandler } = require("./middlewares/error-handler");
 
-const upload = multer({ storage: storage });
+// app.js should be initialized from within the javascript folder.
+// If not, the file paths will be wrong.
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
+app.get("/", (req, res) => res.send("Fine!"));
 app.get("/test", (req, res) => res.send("Hey, this is ok!"));
 
-// app.js should be initialized from within the javascript folder.
-// If not, the file paths will be wrong.
+app.post("/transcription", uploadAudio, transcriptAudio);
+app.post("/chat", chat);
 
-app.post("/transcription", upload.single("audio"), async (req, res) => {
-    try {
-        const { filename } = req.file;
-        const transcription = await speechToText(filename);
-        fs.unlink(path.join(__dirname, "uploads", filename), (err) => {
-            if (err) console.log(err);
-        });
-
-        res.send({
-            data: { transcription },
-        });
-    } catch (err) {
-        console.log(err);
-    }
-});
-
-app.post("/chat", async (req, res) => {
-    try {
-        const { messages } = req.body;
-
-        messages.unshift({ role: "system", content: SYSTEM_PROMPT });
-        const gptResponse = await talkToGPT(messages);
-
-        res.send({
-            data: { reply: gptResponse },
-        });
-    } catch (err) {
-        console.log(err);
-    }
-});
+app.use(errorHandler);
 
 app.listen(process.env.PORT, () => {
     console.log("listening on " + process.env.PORT);
